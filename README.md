@@ -6,9 +6,10 @@
 * The location of character drivers in userspace appears in the /dev/input.
 * **proc/bus/input/devices** contains information on all devices except for USB multimedia/office keyboards
 * Will need get additional information for USB multimedia/office keyboards using commands like lsusb.
-* The command cat /proc/bus/input/devices gives the output:
- Symbol | Description
- --- | ---
+* The command cat /proc/bus/input/devices gives the following output
+  
+|Symbol | Description|
+| --- | --- |
 | I: |  ID of the device. Divided into four separate parts: Bustype, Vendor, Product, Version
 | N: |  Name of the device                                                                   
 | P: |  The physical path to the device in the system hierarchy.                             
