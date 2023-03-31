@@ -7,15 +7,15 @@
 * **proc/bus/input/devices** contains information on all devices except for USB multimedia/office keyboards
 * Will need get additional information for USB multimedia/office keyboards using commands like lsusb.
 * The command cat /proc/bus/input/devices gives the output:
-| Symbol | Description                                                                            |
-| ------ | -------------------------------------------------------------------------------------- |
-| I:     |  ID of the device. Divided into four separate parts: Bustype, Vendor, Product, Version |
-| N:     |  Name of the device                                                                    |
-| P:     |  The physical path to the device in the system hierarchy.                              |
-| S:     |  The sysfs path.                                                                       |
-| U:     |  A unique identification code for the device (if available)                            |
-| H:     |  The list of input handles associated with the device.                                 |
-| B:     |  The Device-Dependent Bitmaps associated with the device.                              |
+ Symbol | Description
+ --- | ---
+| I: |  ID of the device. Divided into four separate parts: Bustype, Vendor, Product, Version
+| N: |  Name of the device                                                                   
+| P: |  The physical path to the device in the system hierarchy.                             
+| S: |  The sysfs path.                                                                      
+| U: |  A unique identification code for the device (if available)                           
+| H: |  The list of input handles associated with the device.                                
+| B: |  The Device-Dependent Bitmaps associated with the device.                             
 
 ex.
 | |
