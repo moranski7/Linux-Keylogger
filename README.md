@@ -1,4 +1,6 @@
 # Linux-KeyLogger
+* Use for educational purpose only.
+* An API keylogger that polls the keyboard handler for events and records them.
 
 ## Background Information
 * The location of character drivers in userspace appears in the /dev/input.
@@ -38,6 +40,8 @@ B: LED=7
 * /dev directory contains all the device files for all the devices on the system while /dev/input is a subdirectory that holds the device files for various input devices.
 * Data from /dev/input/event# in the form of the struct input_event. Information for this struct can be found in input.h.
 * EV_KEY: Used to describe state changes of keyboards, buttons, or other key-like devices.
+* Data from keyboards comes mainly in the form of scancodes. Scancode are in hexadecimal. Each key press/release will produce 0 to 6 scancodes. 
+* Mapped the generic scancode to the corresponding key. Some scancodes are only available for differenct size/type/model of keyboards.
 
 
 ## Reference
@@ -52,3 +56,6 @@ B: LED=7
 * Exploring /dev/input. https://thehackerdiary.wordpress.com/2017/04/21/exploring-devinput-1/
 * input.h. https://github.com/torvalds/linux/blob/master/include/uapi/linux/input.h
 * https://www.kernel.org/doc/Documentation/input/event-codes.txt
+* Ricky Zhang. rickyzhang82. https://gist.github.com/rickyzhang82/8581a762c9f9fc6ddb8390872552c250
+* Markus Kohlhase. https://github.com/flosse/linuxconsole/blob/master/utils/scancodes.h
+* Keyboard Scancodes. https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
