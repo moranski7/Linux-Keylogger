@@ -1,6 +1,33 @@
 # Linux-KeyLogger
-* Use for educational purpose only.
-* An API keylogger that polls the keyboard handler for events and records them.
+Use for educational purpose only. This program is an API keylogger that polls the keyboard handler for events and records them. API keyloggers directly eavesdrop between the signals sent from each keypress to the program. Polling means that the program frequently and repetitively checks the API for user input rather than waiting for. As a result may show duplicate keypresses or even miss key presses.
+
+## Requirements
+* Ubuntu 22.04
+* c++
+* g++ 11.3.0 compiler
+* sudo
+
+## Libraries Used
+* iostream
+* fstream
+* vector
+* regex
+* linux/input.h
+* fcntl.h
+* unistd.h
+* termios.h
+* errno.h
+
+## To Compile
+Open a console and move to the directory where the project is located. Type in **make** to compile the program. This should produce the binary **keylogger**.
+
+## TO Run
+* ./keylogger
+* ./keylogger -h **or** ./keylogger --help
+* ./keylogger -v
+* make run
+* make verbose
+
 
 ## Background Information
 * The location of character drivers in userspace appears in the /dev/input.
@@ -46,17 +73,30 @@ ex.
 
 
 ## Reference
+### Keylogger
+* https://resources.infosecinstitute.com/topic/keyloggers-how-they-work-and-more/
+### Keyboard Driver
 * Andy Dalton. Is keyboard driver a character device driver? https://unix.stackexchange.com/questions/600461/is-keyboard-driver-a-character-device-driver
 * dirkt. Is keyboard driver a character device driver? https://unix.stackexchange.com/questions/600461/is-keyboard-driver-a-character-device-driver
 * Finding the real devices. https://tldp.org/HOWTO/XFree-Local-multi-user-HOWTO/tweak_input_devs-realdev.html
 * Runium. Explain EV in /proc/bus/input/devices data. https://unix.stackexchange.com/questions/74903/explain-ev-in-proc-bus-input-devices-data
+### Handler, Events
 * nx5000. (linux) Handler. https://www.linuxquestions.org/questions/programming-9/linux-handler-381516/
 * Sarah Lewis. What is Event? https://www.techtarget.com/searchapparchitecture/definition/event
+### How Keyboard Events Get Processed
 * dirkt. https://unix.stackexchange.com/questions/545274/how-does-a-keyboard-press-get-processed-in-the-linux-kernel
 * Linux USB input subsystem. https://sciencesoftcode.wordpress.com/2019/07/07/linux-usb-input-subsystem/
+### Access Handler
 * Exploring /dev/input. https://thehackerdiary.wordpress.com/2017/04/21/exploring-devinput-1/
 * input.h. https://github.com/torvalds/linux/blob/master/include/uapi/linux/input.h
+### Keyboard Scancodes
 * https://www.kernel.org/doc/Documentation/input/event-codes.txt
 * Ricky Zhang. rickyzhang82. https://gist.github.com/rickyzhang82/8581a762c9f9fc6ddb8390872552c250
 * Markus Kohlhase. https://github.com/flosse/linuxconsole/blob/master/utils/scancodes.h
 * Keyboard Scancodes. https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
+### Console ECHO
+* FUZxxl. https://www.reddit.com/r/C_Programming/comments/64524q/turning_off_echo_in_terminal_using_c/
+* raj. https://askubuntu.com/questions/1384466/how-can-i-disable-echo-in-terminal 
+* https://pubs.opengroup.org/onlinepubs/007904975/functions/tcsetattr.html (tcsetattr)
+* https://www.mkssoftware.com/docs/man5/struct_termios.5.asp (c_lflag)
+* https://pubs.opengroup.org/onlinepubs/007904975/functions/tcgetattr.html (tcgetattr)
