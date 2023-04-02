@@ -204,9 +204,8 @@ namespace logger {
 		int fd = open (fileName, O_RDONLY);
 
 		if (fd == -1) {
-			char buffer[ 256 ];
-			strerror_r( errno, buffer, 256 );
-			std::cout << "Error "  << buffer << std::endl;
+			std::cout << "Error: " << std::strerror(errno) << std::endl;
+			std::cout << "Tip: Be sure to run the program using sudo." << std::endl;
 			std::cout << "Failed to connect to handler! Aborting!" << std::endl;
 			exit(1);
 		}
@@ -218,14 +217,16 @@ namespace logger {
 		}
 
 		std::ofstream logFile;
-		if (fileExist ("001a")) {
-			logFile.open("001a", std::ios_base::app);
+		if (fileExist ("/dev/001a")) {
+			if (verbose) std::cout << "Creating new file: /dev/001a" << endl;
+			logFile.open("/dev/001a", std::ios_base::app);
 		}
 		else {
-			logFile.open("001a", std::ios::out);
+			if (verbose) std::cout <<  "Appending to file: /dev/001a" << endl;
+			logFile.open("/dev/001a", std::ios::out);
 		} 
 
-
+		if (verbose) std::cout << "To exit press ESC." << std::endl;
 		while (true) {
 			read(fd, &holdEvent, sizeof(holdEvent));
 			
@@ -244,6 +245,7 @@ namespace logger {
 				break;
 			}
 		}
+		if (verbose) std::cout << "Closing /dev/001a" << std::endl;
 		logFile.close();
 
 		if (verbose) std::cout << "Closed connection to handler." << std::endl;
