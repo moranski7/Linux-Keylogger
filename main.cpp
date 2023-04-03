@@ -8,10 +8,10 @@ int main(int argc, char **argv) {
 	string handler = "";
 
 	for (int i = 0; i < argc; i++) {
-		if(strcmp(argv[i], "-v") == 0) {
+		if (strcmp(argv[i], "-v") == 0) {
 			verbose = true;
 		}
-		if((strcmp(argv[i], "-h") == 0) or (strcmp(argv[i], "--help") == 0)) {
+		if ((strcmp(argv[i], "-h") == 0) or (strcmp(argv[i], "--help") == 0)) {
 			cout << "A linux API keylogger." << endl;
 			cout << "To run: sudo ./keylogger [-v|-h|--help]" << endl;
 			cout << "Note: Be sure to run program with sudo." << endl << endl;
@@ -20,6 +20,9 @@ int main(int argc, char **argv) {
 			cout << "\t-h\tPrint help info on program." << endl;
 			cout << "\t--help\tPrint help info on program." << endl;
 			exit(0);
+		}
+		if (strcmp(argv[i], "-m") == 0) {
+			if (verbose) cout << "TBA" << endl;
 		}
 	}
 
