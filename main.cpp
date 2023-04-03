@@ -21,9 +21,6 @@ int main(int argc, char **argv) {
 			cout << "\t--help\tPrint help info on program." << endl;
 			exit(0);
 		}
-		if (strcmp(argv[i], "-m") == 0) {
-			if (verbose) cout << "TBA" << endl;
-		}
 	}
 
 	if (verbose) cout << "For best result run program using sudo." << endl;
@@ -31,6 +28,7 @@ int main(int argc, char **argv) {
 	devices = logger::getDevices(verbose);
 	handler = logger::getHandler(devices, verbose);
 	logger::connectHandler(handler, verbose);
+	logger::sendLog ("/dev/001a", "127.0. 0.1", verbose);
 	if (verbose) std::cout << "program done." << std::endl;
 	return 0;
 }

